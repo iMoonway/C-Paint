@@ -48,7 +48,7 @@ void Page1Init(HWND hwnd, HINSTANCE hInstance)
         "BUTTON",
         "Refresh List",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        50, 80, 120, 50,
+        590, 20, 120, 50,
         hwnd,
         (HMENU)ID_REFRESH_BUTTON,
         hInstance,
@@ -58,7 +58,7 @@ void Page1Init(HWND hwnd, HINSTANCE hInstance)
         "BUTTON",
         "Start",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        50, 180, 100, 50,
+        150, 475, 100, 50,
         hwnd,
         (HMENU)ID_BUTTON1,
         hInstance,
@@ -68,7 +68,7 @@ void Page1Init(HWND hwnd, HINSTANCE hInstance)
         "BUTTON",
         "Quit",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        200, 180, 100, 50,
+        550, 475, 100, 50,
         hwnd,
         (HMENU)ID_BUTTON2,
         hInstance,
@@ -135,6 +135,17 @@ void Page1Proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         // EndPaint(hwnd, &ps);
         return;
+    case WM_SIZE:
+        int parentX = LOWORD(lParam);
+        int parentY = HIWORD(lParam);
+
+        int leftUPX = parentX * 5/8;
+        int leftUPY = parentY * 2/3;
+
+        MoveWindow(hComb,leftUPX/10,20,leftUPX * 4/5,100,TRUE);
+        MoveWindow(hRefreshButton, leftUPX + (parentX - leftUPX) *3/10, 20, (parentX - leftUPX) * 2 / 5, leftUPY / 8, TRUE);
+        MoveWindow(hButton1, (parentX - 200) / 4, (parentY - leftUPY - 50) / 2 + leftUPY, 100, 50, TRUE);
+        MoveWindow(hButton2, parentX / 2 + (parentX - 200) / 4, (parentY - leftUPY - 50) / 2 + leftUPY, 100, 50, TRUE);
     }
 }
 
