@@ -85,5 +85,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
     }
 
+    switch(uMsg){
+        case WM_GETMINMAXINFO:
+            MINMAXINFO *miniStruct = (MINMAXINFO*)lParam;
+            
+            miniStruct->ptMinTrackSize.x = 800;
+            miniStruct->ptMinTrackSize.y = 600;
+    }
+
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
