@@ -16,6 +16,10 @@ UINT_PTR g_timer;
 
 char filePath[MAX_PATH];
 HANDLE hFile = NULL;
+char fileFullName[256] = {0}; 
+
+int canvasLen = 400;
+int magniNum;
 
 LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -53,13 +57,12 @@ void Page2Init(HWND hwnd, HINSTANCE hInstance)
         "DrawingCanvas",
         NULL,
         WS_CHILD | WS_VISIBLE | WS_BORDER,
-        50, 50,          
-        400, 400,         
-        hwnd,             
-        (HMENU)ID_CANVAS, 
+        50, 50,
+        canvasLen, canvasLen,
+        hwnd,
+        (HMENU)ID_CANVAS,
         hInstance,
-        NULL 
-    );
+        NULL);
 }
 
 
@@ -92,6 +95,16 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 InvalidateRect(hwnd, NULL, FALSE);
 
                 g_timer = SetTimer(hwnd,0,25,NULL);
+
+                char pointInfo[100] = {0};
+
+                char point16[30] = {0};
+                sprintf(point16, "%02x%02x%02x", 1, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen);
+
+                sprintf(pointInfo, "%02x%02x%02x -> (%d, %d)\n",
+                        1, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen);
+
+                WriteFile(hFile,pointInfo,strlen(pointInfo),NULL,NULL);
             }
         }
         break;
@@ -111,6 +124,17 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         InvalidateRect(hwnd, NULL, FALSE);
 
+        SetFilePointer(hFile, 0, NULL, FILE_END);
+
+        char pointInfo[100] = {0};
+
+        char point16[30] = {0};
+        sprintf(point16, "%02x%02x%02x", 2, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen);
+
+        sprintf(pointInfo, "%02x%02x%02x -> (%d, %d)\n",2, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen);
+
+        WriteFile(hFile, pointInfo, strlen(pointInfo), NULL, NULL);
+
         break;
     }
     case WM_LBUTTONUP:
@@ -120,6 +144,16 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             g_startDraw = 0;
             ReleaseCapture(); 
             KillTimer(hwnd,g_timer);
+
+            char pointInfo[100] = {0};
+
+            char point16[30] = {0};
+            sprintf(point16, "%02x%02x%02x", 3,0,0);
+
+            sprintf(pointInfo, "%02x%02x%02x -> (%d, %d)\n",3,0,0,0,0);
+
+            SetFilePointer(hFile, 0, NULL, FILE_END);
+            WriteFile(hFile, pointInfo, strlen(pointInfo), NULL, NULL);
         }
         break;
     }
@@ -141,6 +175,8 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 Ellipse(hdc,
                         g_points[i].x - 5, g_points[i].y - 5,
                         g_points[i].x + 5, g_points[i].y + 5);
+
+                
             }
 
             SelectObject(hdc, hOldBrush);
@@ -181,7 +217,7 @@ void Page2Show(int showAble){
         char fileName[100];
         GetCurrentTimeSTR(fileName);
 
-        char fileFullName[256] = "Data\\";
+        strcpy(fileFullName,"Data\\");
 
         strcat(fileFullName,fileName);
         strcat(fileFullName,".txt");
@@ -193,12 +229,11 @@ void Page2Show(int showAble){
         hFile = CreateFile(
             fileFullName,
             GENERIC_WRITE,
-            0,
+            FILE_SHARE_READ,
             NULL,
             CREATE_ALWAYS,
             FILE_ATTRIBUTE_NORMAL,
-            NULL
-        );
+            NULL);
 
         //MessageBox(NULL, filePath, "Test", MB_OK | MB_ICONINFORMATION);
     }
