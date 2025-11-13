@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <shlwapi.h>
+#include <minwindef.h>
 
 #include "page2.h"
 
@@ -18,8 +19,15 @@ char filePath[MAX_PATH];
 HANDLE hFile = NULL;
 char fileFullName[256] = {0}; 
 
-int canvasLen = 400;
+int canvasLen = 500;
 int magniNum;
+
+struct ParentWindow{
+    int windowSizeX;
+    int windowSizeY;
+};
+
+struct ParentWindow pw;
 
 LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -58,7 +66,7 @@ void Page2Init(HWND hwnd, HINSTANCE hInstance)
         NULL,
         WS_CHILD | WS_VISIBLE | WS_BORDER,
         50, 50,
-        canvasLen, canvasLen,
+        500, 500,
         hwnd,
         (HMENU)ID_CANVAS,
         hInstance,
@@ -252,5 +260,16 @@ void Page2Proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         CloseHandle(hFile);
         PostQuitMessage(0);
         return;
+    case WM_SIZE:
+        pw.windowSizeX = LOWORD(lParam);
+        pw.windowSizeY = HIWORD(lParam);
+
+        canvasLen = min(pw.windowSizeX * 3/4,pw.windowSizeY) * 5/6;
+
+        int canvasX = (pw.windowSizeX * 3 / 4 - canvasLen)/2;
+        int canvasY = (pw.windowSizeY - canvasLen) / 2;
+
+        MoveWindow(hCanvas,canvasX,canvasY,canvasLen,canvasLen,TRUE);
+
     }
 }
