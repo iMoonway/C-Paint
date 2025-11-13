@@ -117,24 +117,28 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         // 获取当前鼠标全局坐标
         POINT pt;
         GetCursorPos(&pt);
-        ScreenToClient(hwnd, &pt);
+        ScreenToClient(hCanvas, &pt);
 
-        g_points[g_pointCount] = pt;
-        g_pointCount++;
+        RECT rc;
+        GetClientRect(hCanvas, &rc);
 
-        InvalidateRect(hwnd, NULL, FALSE);
+        if (PtInRect(&rc,pt)){
+            g_points[g_pointCount] = pt;
+            g_pointCount++;
 
-        SetFilePointer(hFile, 0, NULL, FILE_END);
+            InvalidateRect(hwnd, NULL, FALSE);
 
-        char pointInfo[100] = {0};
+            SetFilePointer(hFile, 0, NULL, FILE_END);
 
-        char point16[30] = {0};
-        sprintf(point16, "%02x%02x%02x", 2, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen);
+            char pointInfo[100] = {0};
 
-        sprintf(pointInfo, "%02x%02x%02x -> (%d, %d)\n",2, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen);
+            char point16[30] = {0};
+            sprintf(point16, "%02x%02x%02x", 2, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen);
 
-        WriteFile(hFile, pointInfo, strlen(pointInfo), NULL, NULL);
+            sprintf(pointInfo, "%02x%02x%02x -> (%d, %d)\n",2, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen);
 
+            WriteFile(hFile, pointInfo, strlen(pointInfo), NULL, NULL);
+        }
         break;
     }
     case WM_LBUTTONUP:
