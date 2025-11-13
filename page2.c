@@ -1,20 +1,41 @@
 #include <stdio.h>
 #include <windows.h>
 #include <windowsx.h>
+#include <shlwapi.h>
 
 #include "page2.h"
 
 POINT g_points[MAX_POINTS];
 int g_pointCount = 0;
 
-HWND hCanvas;
+HWND hCanvas = NULL;
 
-// 当前是否处于“绘图页面”
-int g_isDrawingPage = 0;
+int g_isDrawingPage = 0;// 当前是否处于“绘图页面”
 int g_startDraw = 0;
 UINT_PTR g_timer;
 
+char filePath[MAX_PATH];
+HANDLE hFile = NULL;
+
 LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+
+void GetCurrentTimeSTR(char* input)
+{
+    SYSTEMTIME st;
+
+    GetLocalTime(&st);
+
+    char output[64];
+
+    sprintf(output, "%2d-%2d-%2d-%2d-%2d",
+            (int)st.wYear % 100, st.wMonth, st.wDay, st.wHour, st.wMinute);
+
+    strcpy(input,output);
+
+    return;
+}
+
 
 void Page2Init(HWND hwnd, HINSTANCE hInstance)
 {
@@ -40,6 +61,7 @@ void Page2Init(HWND hwnd, HINSTANCE hInstance)
         NULL 
     );
 }
+
 
 LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -132,6 +154,7 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
+
 void Page2Show(int showAble){
     int command = -1;
 
@@ -145,13 +168,49 @@ void Page2Show(int showAble){
     ShowWindow(hCanvas, command);
 
     g_isDrawingPage = showAble;
+
+    if (showAble){
+        if (GetModuleFileNameA(NULL, filePath, MAX_PATH) == 0){
+            MessageBox(NULL,"未能找到路径，请检查该路径是否合法或者能够读取","Error",MB_OK|MB_ICONERROR);
+
+            return;
+        }
+
+        PathRemoveFileSpec(filePath);
+
+        char fileName[100];
+        GetCurrentTimeSTR(fileName);
+
+        char fileFullName[256] = "Data\\";
+
+        strcat(fileFullName,fileName);
+        strcat(fileFullName,".txt");
+
+        strcat(filePath,"\\Data");
+
+        CreateDirectory(filePath,NULL);
+
+        hFile = CreateFile(
+            fileFullName,
+            GENERIC_WRITE,
+            0,
+            NULL,
+            CREATE_ALWAYS,
+            FILE_ATTRIBUTE_NORMAL,
+            NULL
+        );
+
+        //MessageBox(NULL, filePath, "Test", MB_OK | MB_ICONINFORMATION);
+    }
 }
+
 
 void Page2Proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
     case WM_DESTROY:
+        CloseHandle(hFile);
         PostQuitMessage(0);
         return;
     }
