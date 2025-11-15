@@ -3,6 +3,7 @@
 #include <windowsx.h>
 #include <shlwapi.h>
 #include <minwindef.h>
+#include <math.h>
 
 #include "page2.h"
 
@@ -107,10 +108,19 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 char pointInfo[100] = {0};
 
                 char point16[30] = {0};
-                sprintf(point16, "%02x%02x%02x", 1, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen);
+                sprintf(point16, "%02x%03x%03x", 
+                    1, 
+                    (pt.x * 2000 + canvasLen / 2) / canvasLen, 
+                    (pt.y * 2000 + canvasLen / 2) / canvasLen
+                );
 
-                sprintf(pointInfo, "%02x%02x%02x -> (%d, %d)\n",
-                        1, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen);
+                sprintf(pointInfo, "%02x%03x%03x -> (%0.1f, %0.1f)\n",
+                    1,
+                    (pt.x * 2000 + canvasLen / 2) / canvasLen,
+                    (pt.y * 2000 + canvasLen / 2) / canvasLen,
+                    (float)(pt.x * 200) / canvasLen,
+                    (float)(pt.y * 200) / canvasLen
+                );
 
                 WriteFile(hFile,pointInfo,strlen(pointInfo),NULL,NULL);
             }
@@ -141,9 +151,19 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             char pointInfo[100] = {0};
 
             char point16[30] = {0};
-            sprintf(point16, "%02x%02x%02x", 2, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen);
+            sprintf(point16, "%02x%03x%03x",
+                2,
+                (pt.x * 2000 + canvasLen / 2) / canvasLen,
+                (pt.y * 2000 + canvasLen / 2) / canvasLen
+            );
 
-            sprintf(pointInfo, "%02x%02x%02x -> (%d, %d)\n",2, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen, pt.x * 200 / canvasLen, pt.y * 200 / canvasLen);
+            sprintf(pointInfo, "%02x%03x%03x -> (%0.1f, %0.1f)\n",
+                2,
+                (pt.x * 2000 + canvasLen / 2) / canvasLen,
+                (pt.y * 2000 + canvasLen / 2) / canvasLen,
+                (float)(pt.x * 200) / canvasLen,
+                (float)(pt.y * 200) / canvasLen
+            );
 
             WriteFile(hFile, pointInfo, strlen(pointInfo), NULL, NULL);
         }
@@ -160,9 +180,9 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             char pointInfo[100] = {0};
 
             char point16[30] = {0};
-            sprintf(point16, "%02x%02x%02x", 3,0,0);
+            sprintf(point16, "%02x%03x%03x", 3,0,0);
 
-            sprintf(pointInfo, "%02x%02x%02x -> (%d, %d)\n",3,0,0,0,0);
+            sprintf(pointInfo, "%02x%03x%03x -> (%d, %d)\n",3,0,0,0,0);
 
             SetFilePointer(hFile, 0, NULL, FILE_END);
             WriteFile(hFile, pointInfo, strlen(pointInfo), NULL, NULL);
