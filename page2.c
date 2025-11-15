@@ -177,12 +177,28 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             ReleaseCapture(); 
             KillTimer(hwnd,g_timer);
 
+            POINT pt;
+
+            pt.x = GET_X_LPARAM(lParam);
+            pt.y = GET_Y_LPARAM(lParam);
+
             char pointInfo[100] = {0};
 
             char point16[30] = {0};
-            sprintf(point16, "%02x%03x%03x", 3,0,0);
 
-            sprintf(pointInfo, "%02x%03x%03x -> (%d, %d)\n",3,0,0,0,0);
+            sprintf(point16, "%02x%03x%03x",
+                3,
+                (pt.x * 2000 + canvasLen / 2) / canvasLen,
+                (pt.y * 2000 + canvasLen / 2) / canvasLen
+            );
+
+            sprintf(pointInfo, "%02x%03x%03x -> (%0.1f, %0.1f)\n",
+                3,
+                (pt.x * 2000 + canvasLen / 2) / canvasLen,
+                (pt.y * 2000 + canvasLen / 2) / canvasLen,
+                (float)(pt.x * 200) / canvasLen,
+                (float)(pt.y * 200) / canvasLen
+            );
 
             SetFilePointer(hFile, 0, NULL, FILE_END);
             WriteFile(hFile, pointInfo, strlen(pointInfo), NULL, NULL);
