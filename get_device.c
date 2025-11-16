@@ -72,3 +72,20 @@ char* get_device_name(int index){
 
     return friendlyName;
 }
+
+
+int get_device_com_number(int index){
+    int maxCount = get_devices_count();
+
+    if (index< 0 || index > maxCount) return -1;
+
+    char* deviceFriendlyName = get_device_name(index);
+    char* result = strstr(deviceFriendlyName,"(COM");
+
+    if (result == NULL) return -2;
+
+    int str_position = (int)(result-deviceFriendlyName);
+    int comNumber = deviceFriendlyName[str_position+4] - '0';
+
+    return comNumber;
+}
