@@ -8,9 +8,21 @@
 #define WINDOW_NAME "C-Paint"
 
 HWND hComb; // 下拉框的实例
+HWND hBaudComb; // 波特率下拉框实例
 HWND hRefreshButton;
 HWND hButton1;
 HWND hButton2;
+
+const char* baudDefaultList[] = {
+    "1200",
+    "2400",
+    "4800",
+    "9600",
+    "19200",
+    "38400",
+    "57600",
+    "115200"
+};
 
 void Page1Init(HWND hwnd, HINSTANCE hInstance)
 {
@@ -23,6 +35,16 @@ void Page1Init(HWND hwnd, HINSTANCE hInstance)
         50, 20, 400, 100,
         hwnd,
         (HMENU)ID_COMBOBOX,
+        hInstance,
+        NULL);
+
+    hBaudComb = CreateWindow(
+        "COMBOBOX",
+        "BaudRateSetting",
+        WS_CHILD | WS_VISIBLE | CBS_DROPDOWN | WS_VSCROLL,
+        50, 150, 200, 100,
+        hwnd,
+        (HMENU)ID_BAUD_COMBOBOX,
         hInstance,
         NULL);
 
@@ -42,7 +64,12 @@ void Page1Init(HWND hwnd, HINSTANCE hInstance)
         }
     }
 
-    SendMessage(hComb, CB_SETCURSEL, (WPARAM)-1, 0); // 设置默认项为空白
+    for (int i = 0;i < 8;i++){
+        SendMessage(hBaudComb, CB_ADDSTRING, 0, (LPARAM)baudDefaultList[i]);
+    }
+
+    SendMessage(hBaudComb,CB_SETCURSEL,(WPARAM)-1, 0);
+    SendMessage(hComb, CB_SETCURSEL, (WPARAM)-1, 0);
 
     hRefreshButton = CreateWindow(
         "BUTTON",
@@ -142,10 +169,26 @@ void Page1Proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         int leftUPX = parentX * 5/8;
         int leftUPY = parentY * 2/3;
 
-        MoveWindow(hComb,leftUPX/10,20,leftUPX * 4/5,100,TRUE);
-        MoveWindow(hRefreshButton, leftUPX + (parentX - leftUPX) *3/10, 20, (parentX - leftUPX) * 2 / 5, leftUPY / 8, TRUE);
-        MoveWindow(hButton1, (parentX - 200) / 4, (parentY - leftUPY - 50) / 2 + leftUPY, 100, 50, TRUE);
-        MoveWindow(hButton2, parentX / 2 + (parentX - 200) / 4, (parentY - leftUPY - 50) / 2 + leftUPY, 100, 50, TRUE);
+        MoveWindow(hComb,
+            leftUPX / 10, 20,
+            leftUPX * 4 / 5, 100,
+            TRUE);
+        MoveWindow(hBaudComb,
+            leftUPX / 10, 150,
+            leftUPX * 4 / 5, 100,
+            TRUE);
+        MoveWindow(hRefreshButton,
+            leftUPX + (parentX - leftUPX) *3/10, 20,
+            (parentX - leftUPX) * 2 / 5, leftUPY / 8,
+            TRUE);
+        MoveWindow(hButton1, 
+            (parentX - 200) / 4, (parentY - leftUPY - 50) / 2 + leftUPY, 
+            100, 50, 
+            TRUE);
+        MoveWindow(hButton2, 
+            parentX / 2 + (parentX - 200) / 4, (parentY - leftUPY - 50) / 2 + leftUPY, 
+            100, 50, 
+            TRUE);
     }
 }
 
@@ -161,4 +204,5 @@ void Page1Show(int showAble){
     ShowWindow(hRefreshButton,command);
     ShowWindow(hButton1,command);
     ShowWindow(hButton2,command);
+    ShowWindow(hBaudComb,command);
 }
