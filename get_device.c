@@ -80,12 +80,29 @@ int get_device_com_number(int index){
     if (index< 0 || index > maxCount) return -1;
 
     char* deviceFriendlyName = get_device_name(index);
-    char* result = strstr(deviceFriendlyName,"(COM");
+    char* startResult = strstr(deviceFriendlyName,"(COM");
+    char *endResult = strrchr(deviceFriendlyName, ')');
 
-    if (result == NULL) return -2;
+    if (startResult == NULL || endResult == NULL) return -2;
 
-    int str_position = (int)(result-deviceFriendlyName);
-    int comNumber = deviceFriendlyName[str_position+4] - '0';
+    int strStartPosition = (int)(startResult-deviceFriendlyName);
+    int strEndPosition = (int)(endResult-deviceFriendlyName);
+
+    int comNumber;
+
+    if(strStartPosition + 4 <= strEndPosition - 1){
+        char comStr[25] = {0};
+        comStr[0] = deviceFriendlyName[strStartPosition + 4];
+
+        for(int i = 1; i <= strEndPosition - strStartPosition - 5;i++)
+        {
+            comStr[i] = deviceFriendlyName[strStartPosition + 4 + i];
+        }
+
+        sscanf(comStr, "%2d", &comNumber);
+    }
+    else return -3;
+
 
     return comNumber;
 }
