@@ -3,6 +3,7 @@
 
 #include "get_device.h"
 #include "page1.h"
+#include "main.h"
 
 // 自定义
 #define WINDOW_NAME "C-Paint"
@@ -141,10 +142,19 @@ void Page1Proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             // 按钮处理
             case ID_BUTTON1:
-                // //g_count = get_devices_count();
-                // g_showText = 1;
-                // //output = get_device_name(0);
-                // InvalidateRect(hwnd, NULL, FALSE); // 触发重绘
+                int comboSelcet = SendMessage(hComb, CB_GETCURSEL, 0, 0);
+                int deviceCount = get_devices_count();
+
+                if(comboSelcet < 0|| comboSelcet >= deviceCount){
+                    MessageBoxW(NULL,
+                                L"未选择或者选择有误,请点击Refresh_List后再重新选择",
+                                L"错误",
+                                MB_OK | MB_ICONERROR);
+                    return;
+                }
+
+                set_page_index(1);
+
                 return;
             }
 

@@ -1,0 +1,1 @@
+void set_page_index(int index);

@@ -9,7 +9,7 @@
 //自定义
 #define WINDOW_NAME "C-Paint"
 
-int page_index = 1;
+int page_index = 0;
 
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam); //自定义中断函数，仅对主窗口响应
@@ -94,4 +94,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+void set_page_index(int index){
+    page_index = index;
+
+    Page1Show(index == 0);
+    Page2Show(index == 1);
+    return;
 }
