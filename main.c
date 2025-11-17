@@ -10,6 +10,7 @@
 #define WINDOW_NAME "C-Paint"
 
 int page_index = 0;
+HWND hwnd = NULL; // 父窗口实例
 
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam); //自定义中断函数，仅对主窗口响应
@@ -28,7 +29,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     RegisterClass(&wc);// 注册窗口
 
     //父窗口
-    HWND hwnd = CreateWindowEx(
+    hwnd = CreateWindowEx(
         0,
         CLASS_NAME,
         WINDOW_NAME, // 窗口标题
@@ -101,5 +102,7 @@ void set_page_index(int index){
 
     Page1Show(index == 0);
     Page2Show(index == 1);
+
+    InvalidateRect(hwnd,NULL,FALSE);
     return;
 }

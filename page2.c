@@ -23,6 +23,9 @@ char fileFullName[256] = {0};
 int canvasLen = 500;
 int magniNum;
 
+int comNumber = -1;
+int baudRate = -1;
+
 struct ParentWindow{
     int windowSizeX;
     int windowSizeY;
@@ -306,6 +309,23 @@ void Page2Proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         int canvasY = (pw.windowSizeY - canvasLen) / 2;
 
         MoveWindow(hCanvas,canvasX,canvasY,canvasLen,canvasLen,TRUE);
+    case WM_PAINT:
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hwnd, &ps);
 
+        char testBuffer[52] = {0};
+        sprintf(testBuffer, "COM is %d,baud rate is %d", comNumber, baudRate);
+
+        TextOut(hdc, 0, 0, testBuffer, strlen(testBuffer));
+
+        EndPaint(hwnd, &ps);
+        break;
     }
+}
+
+void init_com(int com, int baud){
+    comNumber = com;
+    baudRate = baud;
+
+    return;
 }

@@ -3,6 +3,7 @@
 
 #include "get_device.h"
 #include "page1.h"
+#include "page2.h"
 #include "main.h"
 
 // 自定义
@@ -153,6 +154,14 @@ void Page1Proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     return;
                 }
 
+                int comNumber = get_device_com_number(comboSelcet);
+                
+                char baudStr[52] = {0};
+                GetWindowText(hBaudComb, baudStr, sizeof(baudStr)/sizeof(baudStr[0]));
+                int baudNumber = -1;
+                sscanf(baudStr,"%6d",&baudNumber);
+
+                init_com(comNumber,baudNumber);
                 set_page_index(1);
 
                 return;
