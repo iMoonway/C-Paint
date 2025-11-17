@@ -19,6 +19,8 @@ UINT_PTR g_timer;
 char filePath[MAX_PATH];
 HANDLE hFile = NULL;
 char fileFullName[256] = {0}; 
+HANDLE hSerial = NULL;
+int serialInit = 0;
 
 int canvasLen = 500;
 int magniNum;
@@ -126,6 +128,37 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 );
 
                 WriteFile(hFile,pointInfo,strlen(pointInfo),NULL,NULL);
+
+                if (serialInit)
+                {
+                    char sendData[4];
+                    DWORD dataSendNumber = 0;
+                    OVERLAPPED overlapped = {0};
+
+                    for (int i = 0; i <= 8; i += 2)
+                    {
+                        char byte[3] = {pointInfo[i], pointInfo[i + 1], '\0'};
+                        sendData[i / 2] = (char)strtol(byte, NULL, 16);
+                    }
+
+                    overlapped.Offset = 0;
+                    overlapped.OffsetHigh = 0;
+
+                    int error = WriteFile(hSerial, sendData, 4, &dataSendNumber, &overlapped);
+
+                    if (!error && GetLastError() != ERROR_IO_PENDING)
+                    {
+                        wchar_t buffer[52] = {0};
+                        swprintf(buffer, sizeof(buffer) / sizeof(wchar_t), L"发送错误，代码为%8x", GetLastError());
+
+                        MessageBoxW(NULL,
+                                    buffer,
+                                    L"错误",
+                                    MB_OK | MB_ICONERROR);
+                    
+                                    serialInit = 0;
+                    }
+                }
             }
         }
         break;
@@ -169,6 +202,37 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             );
 
             WriteFile(hFile, pointInfo, strlen(pointInfo), NULL, NULL);
+            
+            if (serialInit)
+            {
+                char sendData[4];
+                DWORD dataSendNumber = 0;
+                OVERLAPPED overlapped = {0};
+
+                for (int i = 0; i <= 8; i += 2)
+                {
+                    char byte[3] = {pointInfo[i], pointInfo[i + 1], '\0'};
+                    sendData[i / 2] = (char)strtol(byte, NULL, 16);
+                }
+
+                overlapped.Offset = 0;
+                overlapped.OffsetHigh = 0;
+
+                int error = WriteFile(hSerial, sendData, 4, &dataSendNumber, &overlapped);
+
+                if (!error && GetLastError() != ERROR_IO_PENDING)
+                {
+                    wchar_t buffer[52] = {0};
+                    swprintf(buffer, sizeof(buffer) / sizeof(wchar_t), L"发送错误，代码为%8x", GetLastError());
+
+                    MessageBoxW(NULL,
+                                buffer,
+                                L"错误",
+                                MB_OK | MB_ICONERROR);
+
+                    serialInit = 0;
+                }
+            }
         }
         break;
     }
@@ -205,6 +269,36 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             SetFilePointer(hFile, 0, NULL, FILE_END);
             WriteFile(hFile, pointInfo, strlen(pointInfo), NULL, NULL);
+
+            if (serialInit){
+                char sendData[4];
+                DWORD dataSendNumber = 0;
+                OVERLAPPED overlapped = {0};
+
+                for (int i = 0; i <= 8; i += 2)
+                {
+                    char byte[3] = {pointInfo[i], pointInfo[i + 1], '\0'};
+                    sendData[i / 2] = (char)strtol(byte, NULL, 16);
+                }
+
+                overlapped.Offset = 0;
+                overlapped.OffsetHigh = 0;
+
+                int error = WriteFile(hSerial, sendData, 4, &dataSendNumber, &overlapped);
+
+                if (!error && GetLastError() != ERROR_IO_PENDING)
+                {
+                    wchar_t buffer[52] = {0};
+                    swprintf(buffer, sizeof(buffer) / sizeof(wchar_t), L"发送错误，代码为%8x", GetLastError());
+
+                    MessageBoxW(NULL,
+                                buffer,
+                                L"错误",
+                                MB_OK | MB_ICONERROR);
+
+                    serialInit = 0;
+                }
+            }
         }
         break;
     }
@@ -297,6 +391,7 @@ void Page2Proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
     case WM_DESTROY:
         CloseHandle(hFile);
+        CloseHandle(hSerial);
         PostQuitMessage(0);
         return;
     case WM_SIZE:
@@ -323,9 +418,52 @@ void Page2Proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
 }
 
-void init_com(int com, int baud){
+
+int init_com(int com, int baud){
     comNumber = com;
     baudRate = baud;
 
-    return;
+    char portName[52] = {0};
+    sprintf(portName, "\\\\.\\COM%d", comNumber);
+
+    hSerial = CreateFile(
+        portName,
+        GENERIC_READ | GENERIC_WRITE,
+        0, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
+
+    if (hSerial == INVALID_HANDLE_VALUE)
+    {
+        MessageBoxW(NULL,
+                    L"串口打开错误",
+                    L"错误",
+                    MB_OK | MB_ICONERROR);
+                    serialInit = 0;
+        return 0;
+    }
+
+    DCB dcb = {0};
+    dcb.DCBlength = sizeof(dcb);
+
+    GetCommState(hSerial,&dcb);
+
+    dcb.BaudRate = baudRate;
+    dcb.ByteSize = 8;
+    dcb.Parity = 0;
+    dcb.StopBits = 0;
+
+    SetCommState(hSerial,&dcb);
+
+    COMMTIMEOUTS timeouts = {0};
+
+    timeouts.ReadIntervalTimeout = 50;
+    timeouts.ReadTotalTimeoutMultiplier = 0;
+    timeouts.ReadTotalTimeoutConstant = 1000;
+    timeouts.WriteTotalTimeoutMultiplier = 0;
+    timeouts.WriteTotalTimeoutConstant = 1000;
+
+    SetCommTimeouts(hSerial,&timeouts);
+
+    serialInit = 1;
+
+    return 1;
 }

@@ -178,7 +178,7 @@ void Page1Proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 int baudNumber = -1;
                 sscanf(baudStr,"%6d",&baudNumber);
 
-                init_com(comNumber,baudNumber);
+                if (!init_com(comNumber,baudNumber)) return;
                 set_page_index(1);
 
                 return;

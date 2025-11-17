@@ -4,4 +4,4 @@
 void Page2Init(HWND hwnd, HINSTANCE hInstance);
 void Page2Show(int showAble);
 void Page2Proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-void init_com(int com, int baud);
+int init_com(int com, int baud);
