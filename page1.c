@@ -15,6 +15,9 @@ HWND hRefreshButton;
 HWND hButton1;
 HWND hButton2;
 
+HWND hTitle1;
+HWND hTitle2;
+
 const char* baudDefaultList[] = {
     "1200",
     "2400",
@@ -34,21 +37,35 @@ void Page1Init(HWND hwnd, HINSTANCE hInstance)
         "COMBOBOX",
         "BlueTooth",
         WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_VSCROLL,
-        50, 20, 400, 100,
+        100, 20, 350, 100,
         hwnd,
         (HMENU)ID_COMBOBOX,
         hInstance,
         NULL);
 
+    hTitle1 = CreateWindowW(
+        L"STATIC", 
+        L"端口号:",  
+        WS_CHILD | WS_VISIBLE | SS_LEFT,
+        50, 20, 50, 20, 
+        hwnd, NULL, NULL, NULL);
+
     hBaudComb = CreateWindow(
         "COMBOBOX",
         "BaudRateSetting",
         WS_CHILD | WS_VISIBLE | CBS_DROPDOWN | WS_VSCROLL,
-        50, 150, 200, 100,
+        100, 130, 250, 100,
         hwnd,
         (HMENU)ID_BAUD_COMBOBOX,
         hInstance,
         NULL);
+
+    hTitle2 = CreateWindowW(
+        L"STATIC",
+        L"波特率:",
+        WS_CHILD | WS_VISIBLE | SS_LEFT,
+        50, 130, 50, 20,
+        hwnd, NULL, NULL, NULL);
 
     init_device_list(); // 初始化获取设备所需的变量
 
@@ -189,12 +206,12 @@ void Page1Proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         int leftUPY = parentY * 2/3;
 
         MoveWindow(hComb,
-            leftUPX / 10, 20,
-            leftUPX * 4 / 5, 100,
+            100, 20,
+            leftUPX * 350 / 500, 100,
             TRUE);
         MoveWindow(hBaudComb,
-            leftUPX / 10, 150,
-            leftUPX * 4 / 5, 100,
+            100, 130,
+            leftUPX * 250 / 500, 100,
             TRUE);
         MoveWindow(hRefreshButton,
             leftUPX + (parentX - leftUPX) *3/10, 20,
@@ -224,4 +241,7 @@ void Page1Show(int showAble){
     ShowWindow(hButton1,command);
     ShowWindow(hButton2,command);
     ShowWindow(hBaudComb,command);
+
+    ShowWindow(hTitle1, command);
+    ShowWindow(hTitle2, command);
 }
