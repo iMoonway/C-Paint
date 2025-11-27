@@ -275,7 +275,7 @@ LRESULT CALLBACK CanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 DWORD dataSendNumber = 0;
                 OVERLAPPED overlapped = {0};
 
-                for (int i = 0; i <= 8; i += 2)
+                for (int i = 0; i < 8; i += 2)
                 {
                     char byte[3] = {pointInfo[i], pointInfo[i + 1], '\0'};
                     sendData[i / 2] = (char)strtol(byte, NULL, 16);
